@@ -425,12 +425,14 @@ cleanall:
 # installer
 
 install:
-	"make" all
+	rm -r release/testmod
+	make all
+	mv release/baseq2 release/testmod
 	cp -r release/* "/home/julia/.steam/debian-installation/steamapps/common/Quake 2"
 
 run:
-	"make" install
-	"/home/julia/.steam/debian-installation/steamapps/common/Quake 2/quake2"
+	make install
+	"/home/julia/.steam/debian-installation/steamapps/common/Quake 2/quake2" +set testmod
 
 # The client
 ifeq ($(YQ2_OSTYPE), Windows)
