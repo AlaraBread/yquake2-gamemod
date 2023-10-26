@@ -422,6 +422,16 @@ cleanall:
 
 # ----------
 
+# installer
+
+install:
+	"make" all
+	cp -r release/* "/home/julia/.steam/debian-installation/steamapps/common/Quake 2"
+
+run:
+	"make" install
+	"/home/julia/.steam/debian-installation/steamapps/common/Quake 2/quake2"
+
 # The client
 ifeq ($(YQ2_OSTYPE), Windows)
 client:
