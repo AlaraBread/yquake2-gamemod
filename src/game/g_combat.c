@@ -567,11 +567,6 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 	if ((skill->value == SKILL_EASY) && (deathmatch->value == 0) && targ->client)
 	{
 		damage *= 0.5;
-
-		if (!damage)
-		{
-			damage = 1;
-		}
 	}
 
 	client = targ->client;
@@ -673,7 +668,7 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 	{
 		M_ReactToDamage(targ, attacker);
 
-		if (!(targ->monsterinfo.aiflags & AI_DUCKED) && (take))
+		if (!(targ->monsterinfo.aiflags & AI_DUCKED))
 		{
 			targ->pain(targ, attacker, knockback, take);
 
@@ -686,12 +681,12 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 	}
 	else if (client)
 	{
-		if (!(targ->flags & FL_GODMODE) && (take))
+		if (!(targ->flags & FL_GODMODE))
 		{
 			targ->pain(targ, attacker, knockback, take);
 		}
 	}
-	else if (take)
+	else
 	{
 		if (targ->pain)
 		{
@@ -745,7 +740,15 @@ T_RadiusDamage(edict_t *inflictor, edict_t *attacker, float damage,
 
 		if (ent == attacker)
 		{
-			points = points * 0.5;
+			points = points * 0.25;
+			if(points > 500) {
+				points = 500;
+			}
+			VectorSubtract(ent->s.origin, inflictor->s.origin, dir);
+			T_Damage(ent, inflictor, attacker, dir, inflictor->s.origin,
+					vec3_origin, 0, (int)points, DAMAGE_RADIUS,
+					mod);
+			return;
 		}
 
 		if (points > 0)
