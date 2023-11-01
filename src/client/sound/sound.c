@@ -1619,7 +1619,7 @@ S_Init(void)
 	s_ambient = Cvar_Get("s_ambient", "1", 0);
 	s_underwater = Cvar_Get("s_underwater", "1", CVAR_ARCHIVE);
 	s_underwater_gain_hf = Cvar_Get("s_underwater_gain_hf", "0.25", CVAR_ARCHIVE);
-	s_doppler = Cvar_Get("s_doppler", "0", CVAR_ARCHIVE);
+	s_doppler = Cvar_Get("s_doppler", "1", CVAR_ARCHIVE);
 	s_ps_sorting = Cvar_Get("s_ps_sorting", "1", CVAR_ARCHIVE);
 	/* Reverb and occlusion is fully disabled by default */
 	s_reverb_preset = Cvar_Get("s_reverb_preset", "-1", CVAR_ARCHIVE);

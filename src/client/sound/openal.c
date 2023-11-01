@@ -618,7 +618,7 @@ AL_Spatialize(channel_t *ch)
 
 		if (s_doppler->value) {
 			CL_GetEntitySoundVelocity(ch->entnum, velocity);
-			VectorScale(velocity, AL_METER_OF_Q2_UNIT, velocity);
+			VectorScale(velocity, AL_METER_OF_Q2_UNIT*10.0, velocity);
 			qalSource3f(ch->srcnum, AL_VELOCITY, AL_UnpackVector(velocity));
 		}
 

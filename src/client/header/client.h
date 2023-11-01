@@ -87,6 +87,22 @@ typedef struct
 
 typedef struct
 {
+	vec3_t origin; /* full float precision */
+	vec3_t velocity; /* full float precision */
+
+	vec3_t forward, right, up;
+	float frametime;
+
+	csurface_t *groundsurface;
+	cplane_t groundplane;
+	int groundcontents;
+
+	vec3_t previous_origin;
+	qboolean ladder;
+} pml_t;
+
+typedef struct
+{
 	char	name[MAX_QPATH];
 	char	cinfo[MAX_QPATH];
 

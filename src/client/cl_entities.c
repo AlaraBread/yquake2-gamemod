@@ -862,6 +862,8 @@ CL_GetEntitySoundOrigin(int ent, vec3_t org)
 	VectorCopy(old->lerp_origin, org);
 }
 
+extern pml_t pml;
+
 /*
  * Called to get the sound spatialization
  */
@@ -878,6 +880,8 @@ CL_GetEntitySoundVelocity(int ent, vec3_t vel)
 	old = &cl_entities[ent];
 
 	VectorSubtract(old->current.origin, old->prev.origin, vel);
+	
+	VectorSubtract(vel, pml.velocity, vel);
 }
 
 void
