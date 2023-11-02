@@ -716,6 +716,16 @@ T_RadiusDamage(edict_t *inflictor, edict_t *attacker, float damage,
 	vec3_t v;
 	vec3_t dir;
 
+	qboolean blaster_rocket = false;
+	float unblaster_radius;
+
+	if(radius < 0) {
+		radius = -radius;
+		blaster_rocket = true;
+		radius *= 100;
+	}
+	unblaster_radius = radius;
+
 	if (!inflictor || !attacker)
 	{
 		return;
@@ -735,23 +745,32 @@ T_RadiusDamage(edict_t *inflictor, edict_t *attacker, float damage,
 
 		VectorAdd(ent->mins, ent->maxs, v);
 		VectorMA(ent->s.origin, 0.5, v, v);
+		// v now contains the center of ent's bounding box
 		VectorSubtract(inflictor->s.origin, v, v);
-		points = damage - 0.5 * VectorLength(v);
+		// v now contains the vector from ent to the inflictor
+		VectorCopy(v, dir);
+		float dist = VectorLength(v);
+		points = damage - 0.5 * dist;
+		if(points < 0) {
+			points = 0;
+		}
 
 		if (ent == attacker)
 		{
-			points = points * 0.25;
-			if(points > 500) {
-				points = 500;
-			}
+			points = points * 0.5;
 			VectorSubtract(ent->s.origin, inflictor->s.origin, dir);
-			T_Damage(ent, inflictor, attacker, dir, inflictor->s.origin,
-					vec3_origin, 0, (int)points, DAMAGE_RADIUS,
-					mod);
-			return;
+			if(blaster_rocket) {
+				VectorScale(dir, -100.0, dir);
+				T_Damage(ent, inflictor, attacker, dir, inflictor->s.origin,
+						vec3_origin, 0, 50, DAMAGE_RADIUS,
+						mod);
+			} else {
+				T_Damage(ent, inflictor, attacker, dir, inflictor->s.origin,
+						vec3_origin, (int)points, (int)points, DAMAGE_RADIUS,
+						mod);
+			}
 		}
-
-		if (points > 0)
+		else if (dist < unblaster_radius && points > 0)
 		{
 			if (CanDamage(ent, inflictor))
 			{

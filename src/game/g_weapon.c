@@ -553,8 +553,8 @@ fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		bolt->dmg = damage * 10;
 		bolt->classname = "bolt";
 
-		bolt->radius_dmg = 10;
-		bolt->dmg_radius = 3000.0;
+		bolt->radius_dmg = 50;
+		bolt->dmg_radius = -50.0;
 
 		if (hyper)
 		{
