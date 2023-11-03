@@ -144,7 +144,8 @@ endif
 # Highest supported optimizations are -O2, higher levels
 # will likely break this crappy code.
 ifdef DEBUG
-CFLAGS ?= -O0 -g -Wall -pipe
+CFLAGS ?= -O0 -ggdb -Wall -pipe
+LDFLAGS ?= -g
 ifdef ASAN
 override CFLAGS += -fsanitize=address -DUSE_SANITIZER
 endif
@@ -396,6 +397,8 @@ config:
 	@echo "WITH_RPATH = $(WITH_RPATH)"
 	@echo "WITH_SYSTEMWIDE = $(WITH_SYSTEMWIDE)"
 	@echo "WITH_SYSTEMDIR = $(WITH_SYSTEMDIR)"
+	@echo "CFLAGS = $(CFLAGS)"
+	@echo "DEBUG = $(DEBUG)"
 	@echo "============================"
 	@echo ""
 
@@ -433,6 +436,10 @@ install:
 run:
 	make install
 	"/home/julia/.steam/debian-installation/steamapps/common/Quake 2/quake2" +set game testmod +set s_doppler 1
+
+debug:
+	make install DEBUG=1
+	echo '\n' | gdb --annotate=3 -ex run --args "/home/julia/.steam/debian-installation/steamapps/common/Quake 2/quake2" +set game testmod
 
 # The client
 ifeq ($(YQ2_OSTYPE), Windows)
