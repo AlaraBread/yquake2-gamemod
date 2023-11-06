@@ -439,7 +439,7 @@ run:
 
 debug:
 	make install DEBUG=1
-	echo '\n' | gdb --annotate=3 -ex run --args "/home/julia/.steam/debian-installation/steamapps/common/Quake 2/quake2" +set game testmod
+	gdb --annotate=3 -ex run --args "/home/julia/.steam/debian-installation/steamapps/common/Quake 2/quake2" +set game testmod
 
 # The client
 ifeq ($(YQ2_OSTYPE), Windows)

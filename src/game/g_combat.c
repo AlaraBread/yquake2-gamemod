@@ -762,7 +762,7 @@ T_RadiusDamage(edict_t *inflictor, edict_t *attacker, float damage,
 			if(blaster_rocket) {
 				VectorScale(dir, -100.0, dir);
 				T_Damage(ent, inflictor, attacker, dir, inflictor->s.origin,
-						vec3_origin, 0, 50, DAMAGE_RADIUS,
+						vec3_origin, 0, 40, DAMAGE_RADIUS,
 						mod);
 			} else {
 				T_Damage(ent, inflictor, attacker, dir, inflictor->s.origin,

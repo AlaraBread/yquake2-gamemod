@@ -646,12 +646,12 @@ P_FallingDamage(edict_t *ent)
 	int damage;
 	vec3_t dir;
 
-	return;
-
 	if (!ent)
 	{
 		return;
 	}
+
+	return;
 
 	if (ent->s.modelindex != 255)
 	{
