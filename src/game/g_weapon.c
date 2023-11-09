@@ -444,7 +444,7 @@ blaster_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 	G_FreeEdict(self);
 }
 
-const float SPREAD = 0.1;
+const float BLASTER_SPREAD = 0.15; // must be less than 1
 
 void rocket_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf);
 
@@ -519,8 +519,8 @@ fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		vec3_t spread_amount;
 
 		for(int j = 0; j < 3; j++) {
-			spread_dir[j] = dir[j];
-			spread_amount[j] = (((float)(rand()%100))*0.01*2.0-1.0)*SPREAD;
+			spread_dir[j] = dir[j]; // make sure we cant ever go backwards
+			spread_amount[j] = crandom()*BLASTER_SPREAD;
 		}
 		VectorAdd(spread_dir, spread_amount, spread_dir);
 		VectorNormalize(spread_dir);

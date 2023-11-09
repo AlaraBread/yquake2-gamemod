@@ -764,13 +764,13 @@ T_RadiusDamage(edict_t *inflictor, edict_t *attacker, float damage,
 				T_Damage(ent, inflictor, attacker, dir, inflictor->s.origin,
 						vec3_origin, 0, 40, DAMAGE_RADIUS,
 						mod);
-			} else {
+			} else if ((int)points > 0) {
 				T_Damage(ent, inflictor, attacker, dir, inflictor->s.origin,
 						vec3_origin, (int)points, (int)points, DAMAGE_RADIUS,
 						mod);
 			}
 		}
-		else if (dist < unblaster_radius && points > 0)
+		else if (dist < unblaster_radius && (int)points > 0)
 		{
 			if (CanDamage(ent, inflictor))
 			{
