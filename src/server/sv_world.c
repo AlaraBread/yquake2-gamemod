@@ -173,7 +173,7 @@ SV_LinkEdict(edict_t *ent)
 	VectorSubtract(ent->maxs, ent->mins, ent->size);
 
 	/* encode the size into the entity_state for client prediction */
-	if ((ent->solid == SOLID_BBOX) && !(ent->svflags & (SVF_DEADMONSTER | SVF_MONSTER)))
+	if ((ent->solid == SOLID_BBOX) && !(ent->svflags & SVF_DEADMONSTER))
 	{
 		/* assume that x/y are equal and symetric */
 		i = (int)ent->maxs[0] / 8;
@@ -601,7 +601,7 @@ SV_ClipMoveToEntities(moveclip_t *clip)
 		}
 
 		if (!(clip->contentmask & CONTENTS_DEADMONSTER) &&
-			(touch->svflags & (SVF_DEADMONSTER | SVF_MONSTER)))
+			(touch->svflags & SVF_DEADMONSTER))
 		{
 			continue;
 		}
