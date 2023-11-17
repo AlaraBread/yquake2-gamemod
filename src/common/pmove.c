@@ -54,6 +54,9 @@ typedef struct
 
 	vec3_t previous_origin;
 	qboolean ladder;
+
+	vec3_t car_angles;
+	vec3_t car_forward, car_right, car_up;
 } pml_t;
 
 pmove_t *pm;
@@ -61,12 +64,14 @@ pml_t pml;
 
 /* movement parameters */
 float pm_stopspeed = 100;
-float pm_maxspeed = 300;
+float pm_maxspeed = 600;
 float pm_duckspeed = 100;
-float pm_accelerate = 10;
+float pm_accelerate = 500;
 float pm_airaccelerate = 0;
 float pm_wateraccelerate = 10;
-float pm_friction = 6;
+float pm_friction = 3;
+float pm_forwardfriction = 1;
+float pm_sidefriction = 40;
 float pm_waterfriction = 1;
 float pm_waterspeed = 400;
 
@@ -315,7 +320,10 @@ PM_Friction(void)
 	if ((pm->groundentity && pml.groundsurface &&
 		 !(pml.groundsurface->flags & SURF_SLICK)) || (pml.ladder))
 	{
-		friction = pm_friction;
+		vec3_t normalized_velocity;
+		VectorCopy(pml.velocity, normalized_velocity);
+		VectorNormalize(normalized_velocity);
+		friction = (pm_sidefriction-pm_forwardfriction)*(abs(DotProduct(normalized_velocity, pml.car_forward))) + pm_forwardfriction;
 		control = speed < pm_stopspeed ? pm_stopspeed : speed;
 		drop += control * friction * pml.frametime;
 	}
@@ -548,8 +556,7 @@ PM_WaterMove(void)
 	/* user intentions */
 	for (i = 0; i < 3; i++)
 	{
-		wishvel[i] = pml.forward[i] * pm->cmd.forwardmove + 
-					 pml.right[i] * pm->cmd.sidemove;
+		wishvel[i] = pml.forward[i] * pm->cmd.forwardmove;
 	}
 
 	if (!pm->cmd.forwardmove && !pm->cmd.sidemove && !pm->cmd.upmove)
@@ -592,11 +599,24 @@ PM_AirMove(void)
 	fmove = pm->cmd.forwardmove;
 	smove = pm->cmd.sidemove;
 
+	float d = DotProduct(pml.velocity, pml.car_forward);
+
+	// saturated steering curve (more steering at slower speeds)
+	d *= 4.0;
+	d = d/(sqrt(1+d*d));
+	d = smove * d * -0.01;
+
+	pml.car_angles[YAW] += d;
+	RotatePointAroundVector(pml.velocity, pml.car_up, pml.velocity, d);
+
+	pm->s.car_angles[0] = ANGLE2SHORT(pml.car_angles[0]);
+	pm->s.car_angles[1] = ANGLE2SHORT(pml.car_angles[1]);
+	pm->s.car_angles[2] = ANGLE2SHORT(pml.car_angles[2]);
+
 	for (i = 0; i < 2; i++)
 	{
-		wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove;
+		wishvel[i] = pml.car_forward[i] * fmove;
 	}
-
 	wishvel[2] = 0;
 
 	PM_AddCurrents(wishvel);
@@ -672,7 +692,7 @@ PM_AirMove(void)
 		}
 		else
 		{
-			PM_Accelerate(wishdir, wishspeed, 1);
+			PM_Accelerate(wishdir, wishspeed, 0);
 		}
 
 		/* add gravity */
@@ -1352,6 +1372,12 @@ Pmove(pmove_t *pmove)
 	pml.velocity[0] = pm->s.velocity[0] * 0.125f;
 	pml.velocity[1] = pm->s.velocity[1] * 0.125f;
 	pml.velocity[2] = pm->s.velocity[2] * 0.125f;
+
+	pml.car_angles[0] = SHORT2ANGLE(pm->s.car_angles[0]);
+	pml.car_angles[1] = SHORT2ANGLE(pm->s.car_angles[1]);
+	pml.car_angles[2] = SHORT2ANGLE(pm->s.car_angles[2]);
+
+	AngleVectors(pml.car_angles, pml.car_forward, pml.car_right, pml.car_up);
 
 	/* save old org in case we get stuck */
 	VectorCopy(pm->s.origin, pml.previous_origin);

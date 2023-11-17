@@ -212,6 +212,13 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 		pflags |= PS_M_DELTA_ANGLES;
 	}
 
+	if ((ps->pmove.car_angles[0] != ops->pmove.car_angles[0]) ||
+		(ps->pmove.car_angles[1] != ops->pmove.car_angles[1]) ||
+		(ps->pmove.car_angles[2] != ops->pmove.car_angles[2]))
+	{
+		pflags |= PS_M_CAR_ANGLES;
+	}
+
 	if ((ps->viewoffset[0] != ops->viewoffset[0]) ||
 		(ps->viewoffset[1] != ops->viewoffset[1]) ||
 		(ps->viewoffset[2] != ops->viewoffset[2]))
@@ -310,6 +317,12 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 		MSG_WriteShort(msg, ps->pmove.delta_angles[0]);
 		MSG_WriteShort(msg, ps->pmove.delta_angles[1]);
 		MSG_WriteShort(msg, ps->pmove.delta_angles[2]);
+	}
+
+	if (pflags & PS_M_CAR_ANGLES) {
+		MSG_WriteShort(msg, ps->pmove.car_angles[0]);
+		MSG_WriteShort(msg, ps->pmove.car_angles[1]);
+		MSG_WriteShort(msg, ps->pmove.car_angles[2]);
 	}
 
 	/* write the rest of the player_state_t */

@@ -520,6 +520,23 @@ V_RenderView(float stereo_separation)
 		cl.refdef.vieworg[1] += 1.0 / 16;
 		cl.refdef.vieworg[2] += 1.0 / 16;
 
+		vec3_t arm;
+
+		AngleVectors(cl.refdef.viewangles, arm, NULL, NULL);
+
+		VectorScale(arm, -100.0, arm);
+
+		VectorAdd(arm, cl.refdef.vieworg, arm);
+
+		vec3_t mins, maxs;
+
+		for(int i = 0; i < 3; i++) mins[i] = -10.0;
+		for(int i = 0; i < 3; i++) maxs[i] = 10.0;
+
+		trace_t t = CM_BoxTrace(cl.refdef.vieworg, arm, mins, maxs, 0, MASK_SOLID);
+
+		VectorCopy(t.endpos, cl.refdef.vieworg);
+
 		cl.refdef.time = cl.time * 0.001f;
 
 		cl.refdef.areabits = cl.frame.areabits;

@@ -265,8 +265,8 @@ CL_AddPacketEntities(frame_t *frame)
 			{
 				V_AddLight(ent.origin, 225, -1.0f, -1.0f, -1.0f);
 			}
-
-			continue;
+			
+			//continue;
 		}
 
 		/* if set to invisible, skip */

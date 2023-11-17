@@ -582,6 +582,12 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 		state->pmove.delta_angles[2] = MSG_ReadShort(&net_message);
 	}
 
+	if (flags & PS_M_CAR_ANGLES) {
+		state->pmove.car_angles[0] = MSG_ReadShort(&net_message);
+		state->pmove.car_angles[1] = MSG_ReadShort(&net_message);
+		state->pmove.car_angles[2] = MSG_ReadShort(&net_message);
+	}
+
 	if (cl.attractloop)
 	{
 		state->pmove.pm_type = PM_FREEZE; /* demo playback */

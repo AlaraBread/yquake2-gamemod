@@ -1313,7 +1313,7 @@ ClientEndServerFrame(edict_t *ent)
 		ent->s.angles[PITCH] = ent->client->v_angle[PITCH] / 3;
 	}
 
-	ent->s.angles[YAW] = ent->client->v_angle[YAW];
+	ent->s.angles[YAW] = SHORT2ANGLE(ent->client->old_pmove.car_angles[YAW]);
 	ent->s.angles[ROLL] = 0;
 	ent->s.angles[ROLL] = SV_CalcRoll(ent->s.angles, ent->velocity) * 4;
 
