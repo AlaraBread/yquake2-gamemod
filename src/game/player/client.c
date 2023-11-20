@@ -1629,8 +1629,8 @@ PutClientInServer(edict_t *ent)
 		return;
 	}
 
-	vec3_t mins = {-16, -16, -24};
-	vec3_t maxs = {16, 16, 32};
+	vec3_t mins = {-320, -320, -320};
+	vec3_t maxs = {320, 320, 320};
 	int index;
 	vec3_t spawn_origin, spawn_angles;
 	gclient_t *client;

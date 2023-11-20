@@ -644,14 +644,16 @@ R_AliasSetupFrames(const entity_t *currententity, const model_t *currentmodel, d
 
 	if ( ( thisframe >= pmdl->num_frames ) || ( thisframe < 0 ) )
 	{
-		R_Printf(PRINT_ALL, "%s %s: no such thisframe %d\n",
-			__func__, currentmodel->name, thisframe);
+		// dont warn cuz we r changing models around
+		/*R_Printf(PRINT_ALL, "%s %s: no such thisframe %d\n",
+			__func__, currentmodel->name, thisframe);*/
 		thisframe = 0;
 	}
 	if ( ( lastframe >= pmdl->num_frames ) || ( lastframe < 0 ) )
 	{
-		R_Printf(PRINT_ALL, "%s %s: no such lastframe %d\n",
-			__func__, currentmodel->name, lastframe);
+		// dont warn cuz we r changing models around
+		/*R_Printf(PRINT_ALL, "%s %s: no such lastframe %d\n",
+			__func__, currentmodel->name, lastframe);*/
 		lastframe = 0;
 	}
 

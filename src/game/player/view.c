@@ -1314,8 +1314,8 @@ ClientEndServerFrame(edict_t *ent)
 	}
 
 	ent->s.angles[YAW] = SHORT2ANGLE(ent->client->old_pmove.car_angles[YAW]);
-	ent->s.angles[ROLL] = 0;
-	ent->s.angles[ROLL] = SV_CalcRoll(ent->s.angles, ent->velocity) * 4;
+	ent->s.angles[ROLL] = SHORT2ANGLE(ent->client->old_pmove.car_angles[ROLL]);
+	ent->s.angles[PITCH] = SHORT2ANGLE(ent->client->old_pmove.car_angles[PITCH]);
 
 	/* calculate speed and cycle to be used for
 	   all cyclic walking effects */

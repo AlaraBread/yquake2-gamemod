@@ -602,7 +602,7 @@ PM_AirMove(void)
 	float d = DotProduct(pml.velocity, pml.car_forward);
 
 	// saturated steering curve (more steering at slower speeds)
-	d *= 4.0;
+	d *= 2.0;
 	d = d/(sqrt(1+d*d));
 	d = smove * d * -0.01;
 
@@ -1050,11 +1050,11 @@ PM_CheckDuck(void)
 {
 	trace_t trace;
 
-	pm->mins[0] = -16;
-	pm->mins[1] = -16;
+	pm->mins[0] = -32;
+	pm->mins[1] = -32;
 
-	pm->maxs[0] = 16;
-	pm->maxs[1] = 16;
+	pm->maxs[0] = 32;
+	pm->maxs[1] = 32;
 
 	if (pm->s.pm_type == PM_GIB)
 	{
@@ -1081,7 +1081,7 @@ PM_CheckDuck(void)
 		if (pm->s.pm_flags & PMF_DUCKED)
 		{
 			/* try to stand up */
-			pm->maxs[2] = 32;
+			pm->maxs[2] = 320;
 			trace = pm->trace(pml.origin, pm->mins, pm->maxs, pml.origin);
 
 			if (!trace.allsolid)
@@ -1480,7 +1480,7 @@ Pmove(pmove_t *pmove)
 
 		if (pm->waterlevel >= 2)
 		{
-			PM_WaterMove();
+			PM_AirMove();
 		}
 		else
 		{
