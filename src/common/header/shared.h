@@ -587,13 +587,15 @@ typedef enum
 } pmtype_t;
 
 /* pmove->pm_flags */
-#define PMF_DUCKED 1
-#define PMF_JUMP_HELD 2
-#define PMF_ON_GROUND 4
-#define PMF_TIME_WATERJUMP 8    /* pm_time is waterjump */
-#define PMF_TIME_LAND 16        /* pm_time is time before rejump */
-#define PMF_TIME_TELEPORT 32    /* pm_time is non-moving time */
-#define PMF_NO_PREDICTION 64    /* temporarily disables prediction (used for grappling hook) */
+#define PMF_DUCKED (1<<0)
+#define PMF_JUMP_HELD (1<<1)
+#define PMF_ON_GROUND (1<<2)
+#define PMF_TIME_WATERJUMP (1<<3)  	/* pm_time is waterjump */
+#define PMF_TIME_LAND (1<<4)       	/* pm_time is time before rejump */
+#define PMF_TIME_TELEPORT (1<<5)  	/* pm_time is non-moving time */
+#define PMF_NO_PREDICTION (1<<6)   	/* temporarily disables prediction (used for grappling hook) */
+#define PMF_NUM_JUMPS ((1<<7)+(1<<8))/* number of jumps available */
+#define PMF_JUMP_LOWER 7			/* the lower bit of PMF_NUM_JUMPS */
 
 /* this structure needs to be communicated bit-accurate/
  * from the server to the client to guarantee that

@@ -1223,7 +1223,15 @@ barrel_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */, csurfa
 
 	ratio = (float)other->mass / (float)self->mass;
 	VectorSubtract(self->s.origin, other->s.origin, v);
-	M_walkmove(self, vectoyaw(v), 20 * ratio * FRAMETIME);
+	//M_walkmove(self, vectoyaw(v), 20 * ratio * FRAMETIME);
+	VectorAdd(self->velocity, v, self->velocity);
+	vec3_t p;
+	vec3_t normal;
+	VectorCopy(v, normal);
+	VectorNormalize(normal);
+	VectorScale(normal, ratio*DotProduct(normal, other->velocity), p);
+	VectorAdd(p, self->velocity, self->velocity);
+	gi.linkentity(self);
 }
 
 void
@@ -1342,8 +1350,8 @@ SP_misc_explobox(edict_t *self)
 	if (deathmatch->value)
 	{
 		/* auto-remove for deathmatch */
-		G_FreeEdict(self);
-		return;
+		//G_FreeEdict(self);
+		//return;
 	}
 
 	gi.modelindex("models/objects/debris1/tris.md2");
@@ -1355,12 +1363,13 @@ SP_misc_explobox(edict_t *self)
 
 	self->model = "models/objects/barrels/tris.md2";
 	self->s.modelindex = gi.modelindex(self->model);
-	VectorSet(self->mins, -16, -16, 0);
-	VectorSet(self->maxs, 16, 16, 40);
+	int size = 24;
+	VectorSet(self->mins, -size, -size, 0);
+	VectorSet(self->maxs, size, size, size*2);
 
 	if (!self->mass)
 	{
-		self->mass = 400;
+		self->mass = 4;
 	}
 
 	if (!self->health)

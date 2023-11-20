@@ -66,12 +66,12 @@ pml_t pml;
 float pm_stopspeed = 100;
 float pm_maxspeed = 600;
 float pm_duckspeed = 100;
-float pm_accelerate = 500;
+float pm_accelerate = 10;
 float pm_airaccelerate = 0;
 float pm_wateraccelerate = 10;
 float pm_friction = 3;
-float pm_forwardfriction = 1;
-float pm_sidefriction = 40;
+float pm_forwardfriction = 0.05;
+float pm_sidefriction = 0.1;
 float pm_waterfriction = 1;
 float pm_waterspeed = 400;
 
@@ -321,9 +321,10 @@ PM_Friction(void)
 		 !(pml.groundsurface->flags & SURF_SLICK)) || (pml.ladder))
 	{
 		vec3_t normalized_velocity;
-		VectorCopy(pml.velocity, normalized_velocity);
+		VectorCopy(vel, normalized_velocity);
 		VectorNormalize(normalized_velocity);
 		friction = (pm_sidefriction-pm_forwardfriction)*(abs(DotProduct(normalized_velocity, pml.car_forward))) + pm_forwardfriction;
+		friction *= speed;
 		control = speed < pm_stopspeed ? pm_stopspeed : speed;
 		drop += control * friction * pml.frametime;
 	}
@@ -599,20 +600,6 @@ PM_AirMove(void)
 	fmove = pm->cmd.forwardmove;
 	smove = pm->cmd.sidemove;
 
-	float d = DotProduct(pml.velocity, pml.car_forward);
-
-	// saturated steering curve (more steering at slower speeds)
-	d *= 2.0;
-	d = d/(sqrt(1+d*d));
-	d = smove * d * -0.01;
-
-	pml.car_angles[YAW] += d;
-	RotatePointAroundVector(pml.velocity, pml.car_up, pml.velocity, d);
-
-	pm->s.car_angles[0] = ANGLE2SHORT(pml.car_angles[0]);
-	pm->s.car_angles[1] = ANGLE2SHORT(pml.car_angles[1]);
-	pm->s.car_angles[2] = ANGLE2SHORT(pml.car_angles[2]);
-
 	for (i = 0; i < 2; i++)
 	{
 		wishvel[i] = pml.car_forward[i] * fmove;
@@ -699,6 +686,24 @@ PM_AirMove(void)
 		pml.velocity[2] -= pm->s.gravity * pml.frametime;
 		PM_StepSlideMove();
 	}
+
+	// steering
+	float d = DotProduct(pml.velocity, pml.car_forward);
+
+	d = smove * d * -0.0001;
+
+	float max_steering = 5.0;
+	if(fabsf(d) > max_steering) d = (d > 0) ? max_steering : -max_steering;
+
+	pml.car_angles[YAW] += d;
+
+	if(pm->groundentity) {
+		RotatePointAroundVector(pml.velocity, pml.car_up, pml.velocity, d);
+	}
+
+	pm->s.car_angles[0] = ANGLE2SHORT(pml.car_angles[0]);
+	pm->s.car_angles[1] = ANGLE2SHORT(pml.car_angles[1]);
+	pm->s.car_angles[2] = ANGLE2SHORT(pml.car_angles[2]);
 }
 
 void
@@ -716,7 +721,7 @@ PM_CatagorizePosition(void)
 	/* see if standing on something solid */
 	point[0] = pml.origin[0];
 	point[1] = pml.origin[1];
-	point[2] = pml.origin[2] - 0.25f;
+	point[2] = pml.origin[2] - 0.5f;
 
 	if (pml.velocity[2] > 180)
 	{
@@ -730,7 +735,7 @@ PM_CatagorizePosition(void)
 		pml.groundsurface = trace.surface;
 		pml.groundcontents = trace.contents;
 
-		if (!trace.ent || ((trace.plane.normal[2] < 0.7) && !trace.startsolid))
+		if (!trace.ent || ( (trace.plane.normal[2] < 0.7) && !trace.startsolid))
 		{
 			pm->groundentity = NULL;
 			pm->s.pm_flags &= ~PMF_ON_GROUND;
@@ -811,6 +816,12 @@ PM_CatagorizePosition(void)
 void
 PM_CheckJump(void)
 {
+	int num_jumps = ((pm->s.pm_flags & PMF_NUM_JUMPS) >> PMF_JUMP_LOWER);
+	if (pm->groundentity != NULL) {
+		num_jumps = 2;
+		pm->s.pm_flags = (pm->s.pm_flags & ~PMF_NUM_JUMPS) | (num_jumps<<PMF_JUMP_LOWER);
+	}
+
 	if (pm->s.pm_flags & PMF_TIME_LAND)
 	{
 		/* hasn't been long enough since landing to jump again */
@@ -861,10 +872,14 @@ PM_CheckJump(void)
 		return;
 	}
 
-	if (pm->groundentity == NULL)
+	if (num_jumps <= 0)
 	{
-		return; /* in air, so no effect */
+		return; /* no jumps, so no effect */
 	}
+
+	num_jumps--;
+
+	pm->s.pm_flags = (pm->s.pm_flags & ~PMF_NUM_JUMPS) | (num_jumps<<PMF_JUMP_LOWER);
 
 	pm->s.pm_flags |= PMF_JUMP_HELD;
 
@@ -874,6 +889,16 @@ PM_CheckJump(void)
 	if (pml.velocity[2] < 270)
 	{
 		pml.velocity[2] = 270;
+	}
+
+	if (num_jumps == 0) {
+		float push_amount = 0.8;
+		vec3_t push;
+		VectorScale(pml.car_forward, pm->cmd.forwardmove*push_amount, push);
+		vec3_t s;
+		VectorScale(pml.car_right, pm->cmd.sidemove*push_amount, s);
+		VectorAdd(s, push, push);
+		VectorAdd(pml.velocity, push, pml.velocity);
 	}
 }
 
