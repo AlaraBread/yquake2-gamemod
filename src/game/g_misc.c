@@ -1146,8 +1146,8 @@ SP_func_explosive(edict_t *self)
 	if (deathmatch->value)
 	{
 		/* auto-remove for deathmatch */
-		G_FreeEdict(self);
-		return;
+		//G_FreeEdict(self);
+		//return;
 	}
 
 	self->movetype = MOVETYPE_PUSH;
@@ -1155,7 +1155,7 @@ SP_func_explosive(edict_t *self)
 	gi.modelindex("models/objects/debris1/tris.md2");
 	gi.modelindex("models/objects/debris2/tris.md2");
 
-	gi.setmodel(self, self->model);
+	gi.setmodel(self, "models/objects/debris2/tris.md2");
 
 	if (self->spawnflags & 1)
 	{

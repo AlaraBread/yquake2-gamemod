@@ -438,7 +438,7 @@ run:
 	make run_cached
 
 run_cached:
-	"/home/julia/.steam/debian-installation/steamapps/common/Quake 2/quake2" +set game testmod +set s_doppler 1
+	"/home/julia/.steam/debian-installation/steamapps/common/Quake 2/quake2" +set game testmod +set s_doppler 1 +set cheats 1
 
 debug:
 	make install DEBUG=1

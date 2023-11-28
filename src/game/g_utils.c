@@ -664,7 +664,7 @@ G_TouchSolids(edict_t *ent)
 
 		if (ent->touch)
 		{
-			ent->touch(hit, ent, NULL, NULL);
+			ent->touch(ent, hit, NULL, NULL);
 		}
 
 		if (!ent->inuse)
