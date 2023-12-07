@@ -3322,28 +3322,28 @@ Game_MenuInit(void)
     s_easy_game_action.generic.flags = QMF_LEFT_JUSTIFY;
     s_easy_game_action.generic.x = 0;
     s_easy_game_action.generic.y = 0;
-    s_easy_game_action.generic.name = "easy";
+    s_easy_game_action.generic.name = "ROcket league mod!!";
     s_easy_game_action.generic.callback = EasyGameFunc;
 
     s_medium_game_action.generic.type = MTYPE_ACTION;
     s_medium_game_action.generic.flags = QMF_LEFT_JUSTIFY;
     s_medium_game_action.generic.x = 0;
     s_medium_game_action.generic.y = 10;
-    s_medium_game_action.generic.name = "medium";
+    s_medium_game_action.generic.name = "your character is a car now!";
     s_medium_game_action.generic.callback = MediumGameFunc;
 
     s_hard_game_action.generic.type = MTYPE_ACTION;
     s_hard_game_action.generic.flags = QMF_LEFT_JUSTIFY;
     s_hard_game_action.generic.x = 0;
     s_hard_game_action.generic.y = 20;
-    s_hard_game_action.generic.name = "hard";
+    s_hard_game_action.generic.name = "the barrel is a ball now.";
     s_hard_game_action.generic.callback = HardGameFunc;
 
     s_hardp_game_action.generic.type = MTYPE_ACTION;
     s_hardp_game_action.generic.flags = QMF_LEFT_JUSTIFY;
     s_hardp_game_action.generic.x = 0;
     s_hardp_game_action.generic.y = 30;
-    s_hardp_game_action.generic.name = "hard+";
+    s_hardp_game_action.generic.name = "help screen over!!!";
     s_hardp_game_action.generic.callback = HardpGameFunc;
 
     s_blankline.generic.type = MTYPE_SEPARATOR;

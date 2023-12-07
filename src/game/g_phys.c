@@ -158,11 +158,6 @@ SV_Impact(edict_t *e1, trace_t *trace)
 	{
 		e1->touch(e1, e2, &trace->plane, trace->surface);
 	}
-
-	if (e2->touch && (e2->solid != SOLID_NOT))
-	{
-		e2->touch(e2, e1, NULL, NULL);
-	}
 }
 
 /*

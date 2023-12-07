@@ -421,8 +421,9 @@ G_SetStats(edict_t *ent)
 	}
 
 	/* health */
+	int speed = (int)(VectorLength(ent->velocity));
 	ent->client->ps.stats[STAT_HEALTH_ICON] = level.pic_health;
-	ent->client->ps.stats[STAT_HEALTH] = (ent->health < -99) ? -99 : ent->health;
+	ent->client->ps.stats[STAT_HEALTH] = speed;
 
 	/* ammo */
 	if (!ent->client->ammo_index)

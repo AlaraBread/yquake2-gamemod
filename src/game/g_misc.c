@@ -1146,8 +1146,8 @@ SP_func_explosive(edict_t *self)
 	if (deathmatch->value)
 	{
 		/* auto-remove for deathmatch */
-		//G_FreeEdict(self);
-		//return;
+		G_FreeEdict(self);
+		return;
 	}
 
 	self->movetype = MOVETYPE_PUSH;
@@ -1223,7 +1223,6 @@ barrel_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */, csurfa
 
 	ratio = (float)other->mass / (float)self->mass;
 	VectorSubtract(self->s.origin, other->s.origin, v);
-	//M_walkmove(self, vectoyaw(v), 20 * ratio * FRAMETIME);
 	VectorAdd(self->velocity, v, self->velocity);
 	vec3_t p;
 	vec3_t normal;

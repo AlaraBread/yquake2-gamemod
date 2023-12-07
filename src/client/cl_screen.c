@@ -1277,18 +1277,7 @@ SCR_ExecuteLayoutString(char *s)
 			width = 3;
 			value = cl.frame.playerstate.stats[STAT_HEALTH];
 
-			if (value > 25)
-			{
-				color = 0;  /* green */
-			}
-			else if (value > 0)
-			{
-				color = (cl.frame.serverframe >> 2) & 1; /* flash */
-			}
-			else
-			{
-				color = 1;
-			}
+			color = 0;
 
 			if (cl.frame.playerstate.stats[STAT_FLASHES] & 1)
 			{
