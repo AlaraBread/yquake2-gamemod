@@ -2419,6 +2419,69 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 			UpdateChaseCam(other);
 		}
 	}
+
+	if(client->breather_framenum > level.framenum) {
+		// the reflection shield is active
+		vec3_t mins, maxs;
+		for(int i = 0; i < 3; i++) mins[i] = -200.0;
+		for(int i = 0; i < 3; i++) maxs[i] = 200.0;
+		VectorAdd(mins, ent->s.origin, mins);
+		VectorAdd(maxs, ent->s.origin, maxs);
+		// using an AABB of size 400x400x400 for the reflection shield, this requires testing to fine tune
+		edict_t *touching_entities[MAX_EDICTS];
+		int num = gi.BoxEdicts(mins, maxs, touching_entities,
+				MAX_EDICTS, AREA_SOLID);
+		
+		for(int i = 0; i < num; i++) {
+			edict_t *projectile = touching_entities[i];
+			if(!projectile || !projectile->inuse) {
+				continue;
+			}
+			if(projectile->movetype != MOVETYPE_FLYMISSILE &&
+					projectile->movetype != MOVETYPE_TOSS &&
+					projectile->movetype != MOVETYPE_BOUNCE) {
+				continue; // this isnt a projectile
+				// our definition of "projectile" here includes
+				// some fun things like gibs and dropped items
+				// excluding them is extra work and i think reflecting them would look cool
+			}
+			vec3_t dir;
+			if(projectile->owner) {
+				if(projectile->owner == ent) {
+					// don't reflect projectiles shot by the player with the shield
+					continue;
+				}
+				// the projectile has an owner, redirect it towards its owner.
+				VectorSubtract(projectile->s.origin, projectile->owner->s.origin, dir);
+			} else {
+				// the projectile doesn't have an owner, redirect it away from the player
+				VectorSubtract(ent->s.origin, projectile->s.origin, dir);
+			}
+			VectorNormalize(dir);
+			// we now have the direction the projectile should be moving in
+			vectoangles(dir, projectile->s.angles);
+			VectorCopy(dir, projectile->movedir);
+			float speed = VectorLength(projectile->velocity); // footnote 3
+			VectorScale(dir, speed, projectile->velocity);
+
+			// dj said that this was required when changing the velocity of an entity
+			// but, this code works fine without it, so the projectile is probably getting linked somewhere else.
+			gi.linkentity(projectile);
+		}
+		vec3_t spark_position, spark_normal;
+		for(int i = 0; i < 3; i++) spark_normal[i] = crandom();
+		if(!VectorNormalize(spark_normal)) {
+			spark_normal[1] = 1.0;
+			VectorNormalize(spark_normal);
+		}
+		VectorScale(spark_normal, 200.0 * sqrt(2.0), spark_position);
+		VectorAdd(spark_position, ent->s.origin, spark_position);
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_SPARKS);
+		gi.WritePosition(spark_position);
+		gi.WriteDir(spark_normal);
+		gi.multicast(spark_position, MULTICAST_PVS);
+	}
 }
 
 /*

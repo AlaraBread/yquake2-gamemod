@@ -840,8 +840,10 @@ P_WorldEffects(void)
 		{
 			current_player->air_finished = level.time + 10;
 
-			if (((int)(current_client->breather_framenum -
+			/*if (((int)(current_client->breather_framenum -
 					   level.framenum) % 25) == 0)
+			{*/
+			if (0)
 			{
 				if (!current_client->breather_sound)
 				{

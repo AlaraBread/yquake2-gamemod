@@ -534,11 +534,11 @@ Use_Breather(edict_t *ent, gitem_t *item)
 
 	if (ent->client->breather_framenum > level.framenum)
 	{
-		ent->client->breather_framenum += 300;
+		ent->client->breather_framenum += 100;
 	}
 	else
 	{
-		ent->client->breather_framenum = level.framenum + 300;
+		ent->client->breather_framenum = level.framenum + 100;
 	}
 }
 
@@ -2231,7 +2231,7 @@ static const gitem_t gameitemlist[] = {
 		"models/items/breather/tris.md2", EF_ROTATE,
 		NULL,
 		"p_rebreather",
-		"Rebreather",
+		"Reflection Shield",
 		2,
 		60,
 		NULL,

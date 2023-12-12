@@ -370,6 +370,56 @@ fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	}
 }
 
+void turret_think(edict_t *self) {
+	if(!self || !self->owner) {
+		return;
+	}
+
+	edict_t *touching_entities[MAX_EDICTS];
+	vec3_t mins, maxs;
+
+	for(int i = 0; i < 3; i++) mins[i] = -500.0;
+	for(int i = 0; i < 3; i++) maxs[i] = 500.0;
+
+	VectorAdd(mins, self->s.origin, mins);
+	VectorAdd(maxs, self->s.origin, maxs);
+
+	int num = gi.BoxEdicts(mins, maxs, touching_entities,
+				MAX_EDICTS, AREA_SOLID);
+	
+	for(int i = 0; i < num; i++) {
+		edict_t *ent = touching_entities[i];
+		if(deathmatch->value || coop->value) {
+			if(OnSameTeam(ent, self->owner)) {
+				continue;
+			}
+		} else {
+			if(!(ent->svflags & SVF_MONSTER)) {
+				continue;
+			}
+		}
+		vec3_t dir;
+		VectorSubtract(ent->s.origin, self->s.origin, dir);
+		VectorNormalize(dir);
+		vec3_t sight_mins, sight_maxs, viewstart, viewend;
+		VectorClear(sight_mins);
+		VectorClear(sight_maxs);
+		VectorScale(dir, 1000, viewend);
+		VectorCopy(self->s.origin, viewstart);
+		viewstart[1] += self->viewheight;
+		trace_t t = gi.trace(viewstart, sight_mins, sight_maxs, viewend, self, MASK_SHOT);
+		if(t.ent == ent) {
+			fire_rocket(self->owner, self->s.origin, dir, 100, 650, 120, 120);
+			vec3_t angles;
+			vectoangles(dir, angles);
+			self->s.angles[YAW] = angles[YAW];
+			break;
+		}
+	}
+
+	self->nextthink = level.time + 0.5;
+}
+
 /*
  * Fires a single blaster bolt.
  * Used by the blaster and hyper blaster.
@@ -439,6 +489,31 @@ blaster_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 		}
 
 		gi.multicast(self->s.origin, MULTICAST_PVS);
+
+		if(!(self->spawnflags & 1)) {
+			edict_t *turret = G_Spawn();
+			VectorCopy(self->s.origin, turret->s.origin);
+			VectorClear(turret->s.angles);
+			VectorClear(turret->velocity);
+			turret->movetype = MOVETYPE_NONE;
+			vec3_t mins, maxs;
+			for(int i = 0; i < 3; i++) mins[i] = -2.0;
+			for(int i = 0; i < 3; i++) maxs[i] = 2.0;
+			VectorCopy(mins, turret->mins);
+			VectorCopy(maxs, turret->maxs);
+			turret->solid = SOLID_BBOX;
+			turret->s.modelindex = gi.modelindex("models/ships/viper/tris.md2");//("models/path/to/turret/model/tris.md2");
+
+			turret->owner = self->owner;
+
+			turret->viewheight = 4;
+
+			turret->think = turret_think;
+			turret->nextthink = level.time + FRAMETIME;
+			turret->touch = NULL;
+
+			gi.linkentity(turret);
+		}
 	}
 
 	G_FreeEdict(self);
@@ -826,6 +901,57 @@ rocket_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 	G_FreeEdict(ent);
 }
 
+void rocket_homing(edict_t *rocket) {
+	if(!rocket) {
+		// unsure how this would ever happen
+		return;
+	}
+	
+	if(rocket->delay <= level.time) {
+		G_FreeEdict(rocket);
+		return;
+	}
+
+	edict_t *player = rocket->owner;
+	if(!player) {
+		// this one is more plausible, but i still doubt it
+		return;
+	}
+	vec3_t viewpos;
+	VectorCopy(player->s.origin, viewpos);
+	viewpos[1] += player->viewheight;
+	// viewpos is now the position that the player's eyes are.
+	vec3_t viewend;
+	AngleVectors(player->client->ps.viewangles, viewend, NULL, NULL);
+	VectorScale(viewend, 10000, viewend);
+	VectorAdd(viewend, viewpos, viewend);
+	// viewend is now some large distance in the direction the player is looking.
+	vec3_t mins;
+	vec3_t maxs;
+	for(int i = 0; i < 3; i++) mins[i] = -1.0;
+	for(int i = 0; i < 3; i++) maxs[i] = 1.0;
+	// we use an AABB with dimensions 2x2x2 to trace the player's view
+	// no clue how big this is ingame, you would have to test it to find out.
+
+	// trace to where the player is looking
+	trace_t t = gi.trace(viewpos, mins, maxs, viewend, NULL, MASK_SHOT);
+
+	vec3_t dir;
+	VectorSubtract(t.endpos, rocket->s.origin, dir);
+	VectorNormalize(dir);
+	// we now have the direction the rocket should be moving in
+	vectoangles(dir, rocket->s.angles);
+	VectorCopy(dir, rocket->movedir);
+	float speed = VectorLength(rocket->velocity); // footnote 1
+	VectorScale(dir, speed, rocket->velocity);
+
+	// dj said that this was required when changing the velocity of an entity
+	// but, this code works fine without it, so the rocket is probably getting linked somewhere else.
+	gi.linkentity(rocket);
+
+	rocket->nextthink = level.time + FRAMETIME;
+}
+
 void
 fire_rocket(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, float damage_radius, int radius_damage)
@@ -851,8 +977,9 @@ fire_rocket(edict_t *self, vec3_t start, vec3_t dir, int damage,
 	rocket->s.modelindex = gi.modelindex("models/objects/rocket/tris.md2");
 	rocket->owner = self;
 	rocket->touch = rocket_touch;
-	rocket->nextthink = level.time + 8000 / speed;
-	rocket->think = G_FreeEdict;
+	rocket->nextthink = level.time + 8000 / speed;//level.time + FRAMETIME;
+	rocket->think = G_FreeEdict;//rocket_homing;
+	//rocket->delay = level.time + 8000 / speed; // footnote 2
 	rocket->dmg = damage;
 	rocket->radius_dmg = radius_damage;
 	rocket->dmg_radius = damage_radius;

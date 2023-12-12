@@ -1467,7 +1467,7 @@ char *controller_alt_bindnames[][2] =
 	{"invprev", "prev item"},
 	{"invnext", "next item"},
 	{"use invulnerability", "use invulnerability"},
-	{"use rebreather", "use rebreather"},
+	{"use reflection shield", "use reflection shield"},
 	{"use environment suit", "use environment suit"},
 	{"use power shield", "use power shield"},
 	{"use quad damage", "use quad damage"},
