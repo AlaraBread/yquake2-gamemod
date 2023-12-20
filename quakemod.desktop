@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Terminal=false
+Exec=bash -c "cd "/home/julia/.steam/debian-installation/steamapps/common/Quake\ 2" ; \"/home/julia/.steam/debian-installation/steamapps/common/Quake 2/quake2\" +set game testmod +set s_doppler 1 +set cheats 1"
+Name=Quake Rocket League Mod
+Icon=/home/julia/fast-icon.png
